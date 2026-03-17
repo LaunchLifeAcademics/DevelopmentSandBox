@@ -1,109 +1,70 @@
-<script>
-  const flashcards = [
-    {
-      question: "What does HTML stand for?",
-      answer: "HyperText Markup Language – the standard language for creating web pages."
-    },
-    {
-      question: "What does CSS control in a web page?",
-      answer: "The visual presentation – layout, colours, fonts, spacing and overall look-and-feel."
-    },
-    {
-      question: "Name one advantage of self-paced training.",
-      answer: "You can study at times that suit you, revisiting topics until you are confident."
-    },
-    {
-      question: "What is a responsive website?",
-      answer: "A site that adapts its layout so it remains usable on mobiles, tablets and desktops."
-    }
-  ];
-
-  const flashcardEl = document.getElementById("flashcard");
-  const questionEl = document.getElementById("card-question");
-  const answerEl = document.getElementById("card-answer");
-  const flipBtn = document.getElementById("flip-btn");
-  const nextBtn = document.getElementById("next-btn");
-  const prevBtn = document.getElementById("prev-btn");
-  const finishedMessageEl = document.getElementById("finished-message");
-
-  let currentIndex = 0;
-  let finished = false;
-
-  function renderCard(index) {
-    if (!flashcards.length) {
-      questionEl.textContent = "No flashcards available.";
-      answerEl.textContent = "";
-      nextBtn.disabled = true;
-      prevBtn.disabled = true;
-      flipBtn.disabled = true;
-      return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pitman Flashcard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --pitman-blue: #004b8d;
+      --pitman-blue-light: #0867b8;
+      --pitman-grey-light: #f5f5f7;
+      --pitman-text-dark: #1b1b1f;
+      --pitman-radius-pill: 999px;
+      --card-width: 320px;
+      --card-height: 200px;
     }
 
-    if (index < 0) index = 0;
-    if (index >= flashcards.length) index = flashcards.length - 1;
-
-    const card = flashcards[index];
-    questionEl.textContent = card.question;
-    answerEl.textContent = card.answer;
-
-    // Update button states
-    prevBtn.disabled = index === 0;
-    nextBtn.disabled = false;
-    finished = false;
-    finishedMessageEl.style.display = "none";
-    flashcardEl.style.opacity = "1";
-    flipBtn.disabled = false;
-
-    if (index === flashcards.length - 1) {
-      nextBtn.textContent = "Finish";
-    } else {
-      nextBtn.textContent = "Next example";
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-  }
 
-  function flipCard() {
-    if (finished) return;
-    flashcardEl.classList.toggle("is-flipped");
-  }
-
-  // Redirect removed – this function no longer exists:
-  // function goToNextLmsPage() { ... }
-
-  function nextCard() {
-    if (finished) return;
-
-    flashcardEl.classList.remove("is-flipped");
-
-    if (currentIndex < flashcards.length - 1) {
-      currentIndex++;
-      renderCard(currentIndex);
-    } else {
-      // Last card: mark finished, but do NOT redirect
-      finished = true;
-      flashcardEl.style.opacity = "0.4";
-      flipBtn.disabled = true;
-      nextBtn.disabled = true;
-      prevBtn.disabled = true;
-      finishedMessageEl.style.display = "block";
-      // No setTimeout or window.location here
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #e7f1fb 0, #ffffff 60%);
+      color: var(--pitman-text-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-  }
 
-  function prevCard() {
-    if (finished) return;
-
-    flashcardEl.classList.remove("is-flipped");
-
-    if (currentIndex > 0) {
-      currentIndex--;
-      renderCard(currentIndex);
+    .page {
+      width: 100%;
+      max-width: 960px;
+      padding: 24px 16px 40px;
     }
-  }
 
-  flashcardEl.addEventListener("click", flipCard);
-  flipBtn.addEventListener("click", flipCard);
-  nextBtn.addEventListener("click", nextCard);
-  prevBtn.addEventListener("click", prevCard);
+    .brand-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      gap: 16px;
+    }
 
-  renderCard(currentIndex);
-</script>
+    .brand-logo {
+      height: 52px;
+      width: auto;
+      display: block;
+    }
+
+    .page-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--pitman-blue);
+      text-align: right;
+    }
+
+    .flashcard-shell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .flip-card {
+      width:
