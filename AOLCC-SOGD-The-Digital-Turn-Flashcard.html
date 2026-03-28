@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AOLCC Flashcards - Practice · Assess · Improve</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Global AOLCC-style theme -->
+  <style>
+    :root {
+      /* AOLCC brand palette */
+      --aolcc-green-primary: #48a548;
+      --aolcc-green-secondary: #a9ca3f;
+      --aolcc-bg-light: #f5f5f7;
+      --aolcc-text-dark: #1b1b1f;
+      --aolcc-border-subtle: #d4d4dd;
+
+      /* Accent colours */
+      --aolcc-blue-primary: #0072ce;
+      --aolcc-blue-primary-dark: #00539b;
+
+      /* Typography and radii */
+      --aolcc-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --aolcc-radius-md: 10px;
+      --aolcc-radius-lg: 16px;
+      --aolcc-shadow-soft: 0 14px 35px rgba(0, 0, 0, 0.12);
+
+      /* Card sizing (desktop defaults) */
+      --card-width: 420px;
+      --card-height: 260px;
+      --card-padding: 1.75rem;
+      --card-font-size: 1.15rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: var(--aolcc-font-family);
+      background-color: var(--aolcc-bg-light);
+      color: var(--aolcc-text-dark);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header / brand bar */
+    .brand-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(90deg, var(--aolcc-green-primary), var(--aolcc-green-secondary));
+      color: #ffffff;
+      border-bottom: 3px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .brand-right {
+      text-align: right;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .brand-title {
+      margin: 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+    }
+
+    .brand-subtitle {
+      margin: 0.15rem 0 0;
+      font-size: 0.8rem;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    /* Main layout */
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem 2.5rem;
+    }
+
+    .flashcard-shell {
+      max-width: 720px;
+      width: 100%;
+    }
+
+    .flashcard-header {
+      margin-bottom: 1rem;
+    }
+
+    .flashcard-heading {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .flashcard-meta {
+      margin-top: 0.35rem;
+      font-size: 0.85rem;
+      color: #555865;
+    }
+
+    /* Flip card */
+    .flip-card {
+      background-color: transparent;
+      width: var(--card-width);
+      height: var(--card-height);
+      margin: 0 auto;
+      perspective: 1000px;
+      transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .flip-card.dimmed {
+      opacity: 0.55;
+      box-shadow: none;
+      transform: translateY(4px);
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+      box-shadow: var(--aolcc-shadow-soft);
+      border-radius: var(--aolcc-radius-lg);
+    }
+
+    .flip-card-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: var(--aolcc-radius-lg);
+      background-color: #ffffff;
+      border: 1px solid var(--aolcc-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--card-padding);
+      text-align: center;
+      font-size: var(--card-font-size);
+      line-height: 1.4;
+    }
+
+    .flip-face.front {
+      background: radial-gradient(circle at top left, rgba(169, 202, 63, 0.12), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(72, 165, 72, 0.14), transparent 60%), #ffffff;
+    }
+
+    .flip-face.back {
+      transform: rotateY(180deg);
+      background: radial-gradient(circle at top right, rgba(0, 114, 206, 0.08), transparent 55%),
+        radial-gradient(circle at bottom left, rgba(72, 165, 72, 0.1), transparent 60%), #ffffff;
+    }
+
+    .flip-card-clickable {
+      cursor: pointer;
+    }
+
+    .flip-card-clickable:focus-visible {
+      outline: 3px solid var(--aolcc-blue-primary);
+      outline-offset: 4px;
+    }
+
+    .card-label {
+      position: absolute;
+      top: 0.75rem;
+      left: 1rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background-color: rgba(27, 27, 31, 0.06);
+      color: #333440;
+    }
+
+    .card-index {
+      position: absolute;
+      bottom: 0.85rem;
+      right: 1rem;
+      font-size: 0.8rem;
+      color: #66697a;
+    }
+
+    /* Controls */
+    .controls {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+      padding: 0.6rem 1.45rem;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
+        transform 0.08s ease;
+      min-width: 120px;
+      background-color: #ffffff;
+      color: var(--aolcc-text-dark);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--aolcc-blue-primary);
+      outline-offset: 3px;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-ghost {
+      border-color: rgba(0, 0, 0, 0.08);
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .btn-primary {
+      border: none;
+      color: #ffffff;
+      background-image: linear-gradient(135deg, var(--aolcc-blue-primary), var(--aolcc-blue-primary-dark));
+      box-shadow: 0 6px 14px rgba(0, 84, 155, 0.55);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-image: linear-gradient(135deg, var(--aolcc-blue-primary-dark), #003a73);
+      box-shadow: 0 8px 18px rgba(0, 84, 155, 0.6);
+    }
+
+    .btn[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .controls-note {
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      text-align: center;
+      color: #5e6070;
+    }
+
+    /* Finished message */
+    #finished-message {
+      margin-top: 1.25rem;
+      padding: 0.9rem 1rem;
+      border-radius: var(--aolcc-radius-md);
+      background-color: #e8f5e9;
+      border: 1px solid rgba(72, 165, 72, 0.4);
+      font-size: 0.9rem;
+      color: #1f4d2a;
+      display: none;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 640px) {
+      .flashcard-shell {
+        max-width: 100%;
+      }
+
+      .flip-card {
+        --card-width: 100%;
+        --card-height: 230px;
+      }
+
+      .flip-face {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --card-height: 210px;
+        --card-padding: 1.15rem;
+        --card-font-size: 0.95rem;
+      }
+
+      .brand-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+      }
+
+      .brand-right {
+        text-align: left;
+      }
+
+      .flashcard-heading {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      :root {
+        --card-height: 200px;
+        --card-font-size: 0.92rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header / brand bar: Update the title text per activity -->
+  <header class="brand-bar">
+    <div class="brand-left">
+      Academy of Learning Career College
+    </div>
+    <div class="brand-right">
+      <p class="brand-title" id="page-title">Practice · Assess · Improve</p>
+      <p class="brand-subtitle">Academy of Learning Career College Training</p>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+    <section class="flashcard-shell" aria-label="Flashcard activity">
+      <div class="flashcard-header">
+        <h1 class="flashcard-heading">Design Movements – Flashcards</h1>
+        <p class="flashcard-meta">
+          Tap or click the card to flip between question and answer. Use the Previous and Next buttons to move
+          through the examples.
+        </p>
+      </div>
+
+      <!-- Flip card container -->
+      <div
+        class="flip-card flip-card-clickable"
+        id="flip-card"
+        tabindex="0"
+        role="button"
+        aria-pressed="false"
+        aria-label="Flashcard. Click to flip and reveal the answer."
+      >
+        <div class="flip-card-inner" id="flip-card-inner">
+          <div class="flip-face front">
+            <span class="card-label" id="card-label">Question</span>
+            <div id="card-question"></div>
+            <span class="card-index" id="card-index"></span>
+          </div>
+          <div class="flip-face back">
+            <span class="card-label" id="card-label-back">Answer</span>
+            <div id="card-answer"></div>
+            <span class="card-index" id="card-index-back"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls and navigation -->
+      <div class="controls" aria-label="Flashcard controls">
+        <button type="button" class="btn btn-ghost" id="btn-prev">Previous</button>
+        <button type="button" class="btn btn-primary" id="btn-flip">Flip card</button>
+        <button type="button" class="btn btn-ghost" id="btn-next">Next example</button>
+      </div>
+
+      <p class="controls-note">
+        Tip: You can also use the Flip card button if clicking on the card is not convenient on your device.
+      </p>
+
+      <!-- Canvas-specific completion message -->
+      <p id="finished-message">
+        You have completed this set of flashcards. Please click the Next button at the bottom of Canvas to continue
+        to the next page of your training.
+      </p>
+    </section>
+  </main>
+
+  <!-- Flashcard data -->
+  <script>
+    // Edit this array per activity: questions and answers only.
+    const flashcards = [
+      {
+        question: "Which elements are common in Grunge?",
+        answer: "Distressed, chaotic, anti-polish design."
+      },
+      {
+        question: "Which elements are common in Digital/Techno?",
+        answer: "Pixel art, 3D, early web aesthetics."
+      },
+      {
+        question: "Which elements are common in Minimalism?",
+        answer: "Negative space, clarity and timelessness."
+      },
+      {
+        question: "What elements are common in Flat Design?",
+        answer: "Clean, user-friendly, mobile-first."
+      },
+      {
+        question: "What elements are common in Neo-Expressionism/Brutalism?",
+        answer: "Raw, edgy designs."
+      }
+    ];
+  </script>
+
+  <!-- Flashcard logic -->
+  <script>
+    let currentIndex = 0;
+    let finished = false;
+    let isFlipped = false;
+
+    const flipCardElement = document.getElementById("flip-card");
+    const flipCardInner = document.getElementById("flip-card-inner");
+    const questionElement = document.getElementById("card-question");
+    const answerElement = document.getElementById("card-answer");
+    const cardIndexElementFront = document.getElementById("card-index");
+    const cardIndexElementBack = document.getElementById("card-index-back");
+    const btnPrev = document.getElementById("btn-prev");
+    const btnFlip = document.getElementById("btn-flip");
+    const btnNext = document.getElementById("btn-next");
+    const finishedMessage = document.getElementById("finished-message");
+
+    function renderCard(index) {
+      if (index < 0 || index >= flashcards.length) return;
+
+      const card = flashcards[index];
+
+      questionElement.textContent = card.question;
+      answerElement.textContent = card.answer;
+
+      const indexLabel = "Card " + (index + 1) + " of " + flashcards.length;
+      cardIndexElementFront.textContent = indexLabel;
+      cardIndexElementBack.textContent = indexLabel;
+
+      btnPrev.disabled = index === 0 || finished;
+      btnFlip.disabled = finished;
+      btnNext.disabled = finished;
+
+      btnNext.textContent = index === flashcards.length - 1 ? "Finish" : "Next example";
+
+      if (isFlipped) {
+        isFlipped = false;
+        flipCardInner.classList.remove("flipped");
+        flipCardElement.setAttribute("aria-pressed", "false");
+      }
+
+      if (!finished) {
+        flipCardElement.classList.remove("dimmed");
+      }
+    }
+
+    function flipCard() {
+      if (finished) return;
+
+      isFlipped = !isFlipped;
+      flipCardInner.classList.toggle("flipped", isFlipped);
+      flipCardElement.setAttribute("aria-pressed", isFlipped ? "true" : "false");
+    }
+
+    function nextCard() {
+      if (finished) return;
+
+      if (currentIndex < flashcards.length - 1) {
+        currentIndex += 1;
+        renderCard(currentIndex);
+      } else {
+        enterFinishedState();
+      }
+    }
+
+    function prevCard() {
+      if (finished) return;
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+        renderCard(currentIndex);
+      }
+    }
+
+    function enterFinishedState() {
+      finished = true;
+      btnPrev.disabled = true;
+      btnFlip.disabled = true;
+      btnNext.disabled = true;
+      flipCardElement.classList.add("dimmed");
+      finishedMessage.style.display = "block";
+    }
+
+    flipCardElement.addEventListener("click", function () {
+      flipCard();
+    });
+
+    flipCardElement.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        flipCard();
+      }
+    });
+
+    btnFlip.addEventListener("click", function () {
+      flipCard();
+    });
+
+    btnNext.addEventListener("click", function () {
+      nextCard();
+    });
+
+    btnPrev.addEventListener("click", function () {
+      prevCard();
+    });
+
+    renderCard(currentIndex);
+  </script>
+</body>
+</html>
